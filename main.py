@@ -7,8 +7,16 @@ import sys
 
 # Load known vulnerable extensions from a JSON database
 VULN_DB = {
-    "VisualEditor": {"version": "<1.36", "cve": "CVE-2021-12345", "exploit": "XSS in editor"},
-    "SemanticMediaWiki": {"version": "<3.2.3", "cve": "CVE-2020-67890", "exploit": "SQL Injection"},
+    "Citizen": {"version": "<3.3.1", "cve": "CVE-2025-49579", "exploit": "XSS via HTML injection in Menu.mustache"},
+    "CentralAuth": {"version": "<1.39.13|<1.42.7|<1.43.2", "cve": "CVE-2025-6926", "exploit": "Authentication bypass"},
+    "UrlShortener": {"version": "<1.42.7|<1.43.2", "cve": "CVE-2025-7056", "exploit": "Stored XSS via improper input neutralization"},
+    "Quiz": {"version": "<1.39.13|<1.42.7|<1.43.2", "cve": "CVE-2025-7057", "exploit": "Stored XSS"},
+    "MsUpload": {"version": "<2025.0", "cve": "CVE-2025-7362", "exploit": "Stored XSS via msu-continue message"},
+    "RefreshSpecial": {"version": "<1.39.11|<1.41.3|<1.42.2", "cve": "CVE-2025-23072", "exploit": "XSS via improper input neutralization"},
+    "AbuseFilter": {"version": "<1.39.9|<1.41.3|<1.42.2", "cve": "CVE-2024-47913", "exploit": "Unauthorized filter log access via API"},
+    "MediaWikiChat": {"version": "<=1.42.1", "cve": "CVE-2024-40601", "exploit": "CSRF in message sending/settings modification"},
+    "CSS": {"version": "<1.39.9|<1.41.3|<1.42.2", "cve": "CVE-2024-47845", "exploit": "Code injection via improper output encoding"},
+    "FeaturedFeeds": {"version": "<1.43.1", "cve": "CVE-2025-53502", "exploit": "XSS in feed output"}
 }
 
 class WikiExploitCLI(cmd.Cmd):
