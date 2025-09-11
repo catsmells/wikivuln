@@ -44,55 +44,64 @@ class WikiExploitCLI(cmd.Cmd):
     def target_url(self, target: str):
         self._target_url = target
     
+    def do_set_target(self, target: str):
         """Set the target MediaWiki URL (e.g., set_target https://example.com/wiki)."""
-        if arg:
-            self.target_url = arg.strip()
-            print(f"Target set to: {self.target_url}")
-        else:
+        if not target:
             print("Please provide a target URL.")
+            return
+        
+        self.target_url = target.strip()
+        print(f"Target set to: {self.target_url}")
+            
 
-    def do_scan(self, arg):
+    def do_scan(self, *_):
         """Scan the target for installed extensions."""
         if not self.target_url:
             print("No target set. Use 'set_target' first.")
             return
+        
         print(f"Scanning {self.target_url} for extensions...")
-        self.extensions = get_wiki_extensions(self.target_url)
-        if self.extensions:
-            print("Extensions found:")
-            for ext in self.extensions:
-                print(f"- {ext['name']} (Version: {ext['version']})")
-        else:
+        if not self.extensions:
             print("No extensions found or error occurred.")
+            return
+        
+        print("Extensions found:")
+        for ext in self.extensions:
+            print(f"- {ext['name']} (Version: {ext['version']})")
 
-    def do_check_vulns(self, arg):
+    def do_check_vulns(self, *_):
         """Check for vulnerabilities in detected extensions."""
         if not self.extensions:
             print("No extensions to check. Run 'scan' first.")
             return
-        vulnerabilities = check_vulnerabilities(self.extensions)
-        if vulnerabilities:
-            print("Vulnerabilities found:")
-            for vuln in vulnerabilities:
-                print(f"Extension: {vuln['extension']}, Version: {vuln['version']}, "
-                      f"CVE: {vuln['cve']}, Exploit: {vuln['exploit']}")
-        else:
+        
+        if not (vulnerabilities := check_vulnerabilities(self.extensions)):
             print("No known vulnerabilities found.")
+            return
+        
+        print("Vulnerabilities found:")
+        for vuln in vulnerabilities:
+            print(
+                f"Extension: {vuln['extension']}, Version: {vuln['version']}, "
+                f"CVE: {vuln['cve']}, Exploit: {vuln['exploit']}"
+            )
+            
 
-    def do_show_info(self, arg):
+    def do_show_info(self, *_):
         """Show current target and detected extensions."""
         print(f"Target: {self.target_url or 'Not set'}")
-        if self.extensions:
-            print("Detected extensions:")
-            for ext in self.extensions:
-                print(f"- {ext['name']} (Version: {ext['version']})")
-        else:
+        if not self.extensions:
             print("No extensions detected.")
+            return
+        
+        print("Detected extensions:")
+        for ext in self.extensions:
+            print(f"- {ext['name']} (Version: {ext['version']})")
+            
 
-    def do_exit(self, arg):
+    def do_exit(self, *_):
         """Exit the CLI."""
-        print("Exiting...")
-        return True
+        return print("Exiting...") or True
 
     def do_help(self, arg: str):
         """Show available commands."""
