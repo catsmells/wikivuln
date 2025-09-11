@@ -37,8 +37,8 @@ class WikiExploitCLI(cmd.Cmd):
 
     @property
     def target_url(self) -> str:
-        if self.target_url:
-            return self.target_url
+        if self._target_url:
+            return self._target_url
         return ''
     
     @target_url.setter
@@ -130,18 +130,18 @@ def get_wiki_extensions(url: str) -> list[dict[str, str]]:
     
     soup = BeautifulSoup(response.text, 'html.parser')
     table = soup.find("table", class_="wikitable")
-    
-    if not table or not isinstance(table, Tag): # type guard
-        print(f'No extension table found!') # notify user
+
+    if not table:
+        print('No extension table found!') # notify user
         return []
     
     return [
         {
-            'name': name_col.getText(strip=True),
-            'version': version_col.getText(strip=True),
+            'name': name_col.get_text(strip=True),
+            'version': version_col.get_text(strip=True),
         }
-        for row in table.findAll('tr') if isinstance(row, Tag)
-        for name_col, version_col in row.find_all('td')
+        for row in table.find_all('tr')
+        for name_col, version_col in row.find_all('td')[1:]
     ]
 
 
