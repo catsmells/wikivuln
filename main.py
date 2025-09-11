@@ -91,42 +91,45 @@ Available commands:
   help               Show this help menu
         """)
 
-def get_wiki_extensions(url):
+def get_wiki_extensions(url: str) -> list[dict[str, str]]:
     """Fetch and parse MediaWiki extensions from Special:Version page."""
     try:
         response = requests.get(f"{url}/index.php/Special:Version", timeout=5)
         response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        extensions = []
-        table = soup.find("table", class_="wikitable")
-        if table:
-            for row in table.find_all("tr")[1:]:  # Skip header
-                cols = row.find_all("td")
-                if len(cols) >= 2:
-                    name = cols[0].text.strip()
-                    version = cols[1].text.strip()
-                    extensions.append({"name": name, "version": version})
-        return extensions
-    except requests.RequestException as e:
+    except requests.HTTPError as e:
         print(f"Error fetching extensions: {e}")
         return []
+    
+    soup = BeautifulSoup(response.text, 'html.parser')
+    table = soup.find("table", class_="wikitable")
+    
+    if not table or not isinstance(table, Tag): # type guard
+        print(f'No extension table found!') # notify user
+        return []
+    
+    return [
+        {
+            'name': name_col.getText(strip=True),
+            'version': version_col.getText(strip=True),
+        }
+        for row in table.findAll('tr') if isinstance(row, Tag)
+        for name_col, version_col in row.find_all('td')
+    ]
 
-def check_vulnerabilities(extensions):
+
+def check_vulnerabilities(extensions: list[dict[str, str]]) -> list[dict[str, str]]:
     """Cross-reference extensions with vulnerability database."""
-    vulnerabilities = []
-    for ext in extensions:
-        name, version = ext["name"], ext["version"]
-        if name in VULN_DB:
-            vuln_info = VULN_DB[name]
-            if re.match(vuln_info["version"], version):  # Simplified version check
-                vulnerabilities.append({
-                    "extension": name,
-                    "version": version,
-                    "cve": vuln_info["cve"],
-                    "exploit": vuln_info["exploit"]
-                })
-    return vulnerabilities
+    return [
+        {
+            'extension': ext['name'],
+            'version': ext['version'],
+            'cve': vuln_info['cve'],
+            'exploit': vuln_info['exploit'],
+        }
+        for ext in extensions
+        if (vuln_info := VULN_DB.get(ext['name'], {}))
+        and re.match(vuln_info['version'], ext['version'])
+    ]
 
 if __name__ == "__main__":
     WikiExploitCLI().cmdloop()
