@@ -1,12 +1,13 @@
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 import json
 import re
 import cmd
 import sys
+from textwrap import dedent
 
 # Load known vulnerable extensions from a JSON database
-VULN_DB = {
+VULN_DB: dict[str, dict[str, str]] = {
     "Citizen": {"version": "<3.3.1", "cve": "CVE-2025-49579", "exploit": "XSS via HTML injection in Menu.mustache"},
     "CentralAuth": {"version": "<1.39.13|<1.42.7|<1.43.2", "cve": "CVE-2025-6926", "exploit": "Authentication bypass"},
     "UrlShortener": {"version": "<1.42.7|<1.43.2", "cve": "CVE-2025-7056", "exploit": "Stored XSS via improper input neutralization"},
