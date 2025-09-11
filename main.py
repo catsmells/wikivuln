@@ -79,17 +79,20 @@ class WikiExploitCLI(cmd.Cmd):
         print("Exiting...")
         return True
 
-    def do_help(self, arg):
+    def do_help(self, arg: str):
         """Show available commands."""
-        print("""
-Available commands:
-  set_target <url>    Set the target MediaWiki URL
-  scan               Scan the target for extensions
-  check_vulns        Check for vulnerabilities in detected extensions
-  show_info          Show current target and extensions
-  exit               Exit the CLI
-  help               Show this help menu
-        """)
+        print(dedent(
+            """
+            Available commands:
+            set_target <url>    Set the target MediaWiki URL
+            scan               Scan the target for extensions
+            check_vulns        Check for vulnerabilities in detected extensions
+            show_info          Show current target and extensions
+            exit               Exit the CLI
+            help               Show this help menu
+            """
+            )
+        )
 
 def get_wiki_extensions(url: str) -> list[dict[str, str]]:
     """Fetch and parse MediaWiki extensions from Special:Version page."""
