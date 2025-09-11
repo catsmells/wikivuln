@@ -25,10 +25,25 @@ class WikiExploitCLI(cmd.Cmd):
 
     def __init__(self):
         super().__init__()
-        self.target_url = None
-        self.extensions = []
+        self._target_url: str|None = None
+        self._extensions: list[dict[str, str]] = []
 
-    def do_set_target(self, arg):
+    @property
+    def extensions(self) -> list[dict[str, str]]:
+        if self.target_url:
+            self._extensions = get_wiki_extensions(self.target_url)
+        return self._extensions
+
+    @property
+    def target_url(self) -> str:
+        if self.target_url:
+            return self.target_url
+        return ''
+    
+    @target_url.setter
+    def target_url(self, target: str):
+        self._target_url = target
+    
         """Set the target MediaWiki URL (e.g., set_target https://example.com/wiki)."""
         if arg:
             self.target_url = arg.strip()
